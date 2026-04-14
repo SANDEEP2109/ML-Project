@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { uploadCSV } from '../api/client'
+import { uploadCSV, analyseData } from '../api/client'
 
 const MODELS = [
   { type: 'classification', label: 'Classification', desc: 'Predict categories — spam, churn, disease.', accent: '#6c63ff' },
@@ -27,7 +27,13 @@ export default function Home() {
       const data = await uploadCSV(file)
       sessionStorage.setItem('dataset', JSON.stringify(data))
       sessionStorage.setItem('modelType', selected)
-      navigate(`/${selected}`)
+      // Call analyse and store results for the visualise page
+      const viz = await analyseData(file)
+      sessionStorage.setItem('vizData', JSON.stringify(viz))
+
+      sessionStorage.setItem('csvFile', file.name)
+      navigate('/visualise')
+
     } catch(e) {
       setError(e.message)
     } finally {
